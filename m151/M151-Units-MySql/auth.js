@@ -3,7 +3,6 @@ import expressSession from 'express-session';
 import LocalStrategy from 'passport-local';
 import { createHash } from 'crypto';
 import { get } from './user/model.js';
-import { CurrentUser } from './movie/currentUser.js';
 
 export default function (app) {
   passport.serializeUser((user, done) => done(null, user.id));
@@ -23,7 +22,6 @@ export default function (app) {
       if (!user) {
         done(null, false);
       } else {
-        CurrentUser.setCurrentUser(username);
         done(null, user);
       }
     }),
@@ -48,7 +46,6 @@ export default function (app) {
   );
 
   app.get('/logout', (request, response) => {
-    CurrentUser.logout();
     request.logout();
     response.redirect('/');
   });

@@ -8,21 +8,21 @@ const connection = await mysql.createConnection({
 });
 await connection.connect();
 
-export async function getAll(username) {
+export async function getAll(userId) {
   let query = 'SELECT * FROM Movies WHERE public = 1 OR ownerId = ? OR ownerId IS NULL';
-  const [data] = await connection.query(query, await getUid(username));
+  const [data] = await connection.query(query, [userId]);
   return data;
 }
 
-async function insert(movie, username) {
+async function insert(movie, userId) {
   const query = 'INSERT INTO Movies (title, year, public, ownerId) VALUES (?, ?, ?, ?)';
-  const [result] = await connection.query(query, [movie.title, movie.year, movie.public, await getUid(username)]);
+  const [result] = await connection.query(query, [movie.title, movie.year, movie.public, userId]);
   return { ...movie, id: result.insertId };
 }
 
-async function update(movie, username) {
+async function update(movie, userId) {
   const query = 'UPDATE Movies SET title = ?, year = ?, public = ?, ownerId = ? WHERE id = ?';
-  await connection.query(query, [movie.title, movie.year, movie.public, await getUid(username), movie.id]);
+  await connection.query(query, [movie.title, movie.year, movie.public, userId, movie.id]);
   return movie;
 }
 
@@ -36,12 +36,6 @@ export async function remove(id) {
   const query = 'DELETE FROM Movies WHERE id = ?';
   await connection.query(query, [id]);
   return;
-}
-
-export async function getUid(username) {
-  const query = 'SELECT id FROM Users WHERE username = ?';
-  const [data] = await connection.query(query, [username]);
-  return data.pop().id;
 }
 
 export function save(movie, username) {

@@ -1,11 +1,13 @@
 import { getAll, remove, get, save } from './model.js';
+import { getUserRatings, getRating, modifyRating, getAverageRatings} from '../rating/model.js';
 import { render } from './view.js';
 import { render as form } from './form.js';
-import { CurrentUser } from './currentUser.js';
 
 export async function listAction(request, response) {
-  const data = await getAll(await CurrentUser.getCurrentUser());
-  const body = render(data);
+  let movies = await getAll(request.user.id);
+  let userRatings = await getUserRatings(request.user.id);
+  let averageRatings = await getAverageRatings();
+  const body = render(movies, userRatings, averageRatings);
   response.send(body);
 }
 
@@ -35,6 +37,24 @@ export async function saveAction(request, response) {
     year: request.body.year,
     public: request.body.public
   };
-  await save(movie, await CurrentUser.getCurrentUser());
+  await save(movie, request.user.id);
+  response.redirect(request.baseUrl);
+}
+
+export async function rateAction(request, response) {
+  let rating = await getRating(request.user.id, request.params.movie);
+  let ratingExists = rating != undefined;
+  let ratingSet = {
+    exists: ratingExists,
+    user: request.user.id,
+    movie: request.params.movie ,
+    rating: request.params.rating
+  }
+  if (ratingSet.movie == undefined || ratingSet.rating == undefined) {
+    console.log("Die Änderungen können nicht gespeichert werden.");
+  }
+  else{
+    await modifyRating(ratingSet);
+  }
   response.redirect(request.baseUrl);
 }
