@@ -15,7 +15,7 @@ export function render(movies, ratings, averageRatings) {
       let star = `<a href="/movie/rate/${movie.id}/${i}">` + (userRating >= i ? "★":"☆") + '</a>'
       movieRatings += star;
     }
-    movieRatings += averageRating;
+    movieRatings += ' ' + averageRating;
     const buttons = `</td>
           <td><a href="/movie/delete/${movie.id}">löschen</a></td>
           <td><a href="/movie/form/${movie.id}">bearbeiten</a></td> 
